@@ -12,7 +12,7 @@ import Link from "@mui/material/Link";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Stack from "@mui/material/Stack";
 import { Typography } from "@mui/material";
-import { signUp } from "../../../firebaseAuth";
+import { signUp } from "../../../firebase/firebaseAuth";
 import { useNavigate } from "react-router-dom";
 
 function RegisterForm(): React.JSX.Element {

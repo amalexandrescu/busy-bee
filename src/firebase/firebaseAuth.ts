@@ -7,8 +7,8 @@ import app from "./firebaseConfig";
 import { doc, getFirestore, setDoc } from "firebase/firestore";
 
 // Initialize Firebase Authentication and get a reference to the service
-const auth = getAuth(app);
-const db = getFirestore(app);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
 
 // Function to handle user signup
 export const signUp = async (name: string, email: string, password: string) => {

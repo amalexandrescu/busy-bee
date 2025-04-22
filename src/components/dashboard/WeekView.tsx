@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import debounce from "lodash.debounce";
+import { formatLocalDate } from "../../utils/datehelpers";
 
 interface CalendarMonth {
   id: string;
@@ -26,7 +27,11 @@ const generateMonthData = (baseDate: Date): CalendarMonth => {
   };
 };
 
-const WeekView: React.FC = () => {
+interface IWeekViewProps {
+  openActivityModal: (date: string) => void;
+}
+
+const WeekView: React.FC<IWeekViewProps> = ({ openActivityModal }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [calendarMonths, setCalendarMonths] = useState<CalendarMonth[]>([]);
   const [visibleMonth, setVisibleMonth] = useState<Date | null>(null);
@@ -216,14 +221,21 @@ const WeekView: React.FC = () => {
             ))}
 
             {/* Day cells */}
-            {month.daysInMonth.map((day) => (
-              <div
-                key={`${month.id}-day-${day}`}
-                className="h-[13rem] w-full border rounded-lg flex items-center justify-center bg-gray-100"
-              >
-                {day}
-              </div>
-            ))}
+            {month.daysInMonth.map((day) => {
+              const fullDate = formatLocalDate(
+                new Date(month.date.getFullYear(), month.date.getMonth(), day)
+              );
+
+              return (
+                <div
+                  key={`${month.id}-day-${day}`}
+                  onClick={() => openActivityModal(fullDate)}
+                  className="cursor-pointer h-[13rem] w-full border rounded-lg flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition"
+                >
+                  {day}
+                </div>
+              );
+            })}
           </div>
         </div>
       ))}

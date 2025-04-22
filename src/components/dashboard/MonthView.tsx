@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react"; // Optional: You can use icons or just text like "<" and ">"
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { formatLocalDate } from "../../utils/datehelpers";
 
-const MonthView: React.FC = () => {
+interface IMonthViewProps {
+  openActivityModal: (date: string) => void;
+}
+
+const MonthView: React.FC<IMonthViewProps> = ({ openActivityModal }) => {
   const [date, setDate] = useState(new Date());
   const [daysInMonth, setDaysInMonth] = useState<number[]>([]);
   const [startOffset, setStartOffset] = useState<number>(0);
@@ -56,14 +61,21 @@ const MonthView: React.FC = () => {
           <div key={`empty-${i}`} />
         ))}
 
-        {daysInMonth.map((day) => (
-          <div
-            key={day}
-            className="h-20 w-full border rounded-lg flex items-center justify-center bg-gray-100"
-          >
-            {day}
-          </div>
-        ))}
+        {daysInMonth.map((day) => {
+          const fullDate = formatLocalDate(
+            new Date(date.getFullYear(), date.getMonth(), day)
+          );
+
+          return (
+            <div
+              key={day}
+              onClick={() => openActivityModal(fullDate)}
+              className="cursor-pointer h-20 w-full border rounded-lg flex items-center justify-center bg-gray-100"
+            >
+              {day}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

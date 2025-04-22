@@ -12,7 +12,7 @@ import Link from "@mui/material/Link";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Stack from "@mui/material/Stack";
 import { Typography } from "@mui/material";
-import { signIn } from "../../../firebaseAuth";
+import { signIn } from "../../../firebase/firebaseAuth";
 import { useNavigate } from "react-router-dom";
 import { deleteUser, getAuth } from "firebase/auth";
 
