@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import ColorPicker from "./ColorPicker";
-import { predefinedColors } from "../constants/colors";
-import { CATEGORIES, Category } from "../constants/categories";
-import { formatDate } from "../../utils/datehelpers";
-import { ActivityUserEntrance } from "../../types/ActivityUserEntrance";
+import ColorPicker from "../ColorPicker";
+import { CATEGORIES, Category } from "../../constants/categories";
+import { formatDate } from "../../../utils/datehelpers";
+import { ActivityUserEntrance } from "../../../types/ActivityUserEntrance";
+import useActivityForm from "../../../hooks/useActivityForm";
 
 interface ActivityModalProps {
   isOpen: boolean;
@@ -13,8 +13,8 @@ interface ActivityModalProps {
     selectedColor: string,
     selectedCategory: string
   ) => void;
+
   selectedDate: string | null;
-  previousActivity: ActivityUserEntrance | null; // to receive previous activity
   activities: ActivityUserEntrance[]; //for previous activities
 }
 
@@ -23,16 +23,17 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
   onClose,
   onSave,
   selectedDate,
-  previousActivity,
   activities,
 }) => {
-  const [activityName, setActivityName] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<Category>(
-    previousActivity?.category || CATEGORIES[0]
-  );
-  const [selectedColor, setSelectedColor] = useState<string>(
-    previousActivity?.color || predefinedColors[0].code
-  );
+  const {
+    activityName,
+    setActivityName,
+    selectedCategory,
+    setSelectedCategory,
+    selectedColor,
+    setSelectedColor,
+    resetForm,
+  } = useActivityForm();
 
   const [suggestions, setSuggestions] = useState<ActivityUserEntrance[]>([]);
 
@@ -52,17 +53,24 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
     const value = e.target.value;
     setActivityName(value);
 
-    // Filter activities by name and provide suggestions
+    // If input is empty, clear suggestions
+    if (!value.trim()) {
+      setSuggestions([]);
+      return;
+    }
+
     const filteredSuggestions = activities.filter((activity) =>
-      activity.name.toLowerCase().includes(value.toLowerCase())
+      activity.name.toLowerCase().startsWith(value.toLowerCase())
     );
 
     // Get only unique suggestions based on the name
     const uniqueSuggestions = getUniqueActivities(filteredSuggestions);
 
-    setSuggestions(uniqueSuggestions); // Update the suggestions with unique activities
+    // Update the suggestions with unique activities
+    setSuggestions(uniqueSuggestions);
   };
 
+  //when you select an existing activity from the suggestions
   const handleSuggestionClick = (activity: ActivityUserEntrance) => {
     setActivityName(activity.name);
     setSelectedCategory(activity.category);
@@ -74,16 +82,12 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
     setSelectedColor(colorCode);
   };
 
+  //save the activity
   const handleSave = () => {
     if (!activityName) return;
     onSave(activityName, selectedColor, selectedCategory);
     resetForm();
-  };
-
-  const resetForm = () => {
-    setActivityName("");
-    setSelectedCategory(previousActivity?.category || CATEGORIES[0]);
-    setSelectedColor(previousActivity?.color || predefinedColors[0].code);
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -107,6 +111,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
             onChange={handleInputChange}
             className="w-full border rounded p-2 mt-1"
           />
+
           {/* Display suggestions */}
           {suggestions.length > 0 && (
             <div className="mt-2 border border-gray-300 rounded">
@@ -149,6 +154,7 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
           <button className="px-4 py-2 bg-gray-300 rounded" onClick={onClose}>
             Cancel
           </button>
+
           <button
             className="px-4 py-2 bg-blue-500 text-white rounded"
             onClick={handleSave}

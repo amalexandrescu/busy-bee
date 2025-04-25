@@ -4,18 +4,22 @@ import { useAuth } from "../../context/AuthContext";
 import {
   addDoc,
   collection,
+  deleteDoc,
+  doc,
   getDocs,
   query,
   serverTimestamp,
   Timestamp,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import { db } from "../../firebase/firebaseAuth";
-import ActivityModal from "../activities/ActivityModal";
+import ActivityModal from "../activities/modals/ActivityModal";
 import useIsMobile from "../../hooks/useIsMobile";
 import WeekView from "./WeekView";
 import { Activity } from "../../types/Activity";
-import { ActivityUserEntrance } from "../../types/ActivityUserEntrance";
+import ManageActivityModal from "../activities/modals/ManageActivityModal";
+import { useDownloadMonthlyReport } from "../../utils/activityreports";
 
 const CalendarView: React.FC<{ children?: React.ReactNode }> = ({
   children,
@@ -24,26 +28,25 @@ const CalendarView: React.FC<{ children?: React.ReactNode }> = ({
   const { user } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [previousActivity, setPreviousActivity] = useState<Activity | null>(
-    null
-  );
-  const [allActivities, setAllActivities] = useState<ActivityUserEntrance[]>(
-    []
-  ); // Store all activities
+  // Store all activities
+  const [allActivities, setAllActivities] = useState<Activity[]>([]);
+  const [activityToEdit, setActivityToEdit] = useState<Activity | null>(null);
+  const [showManageModal, setShowManageModal] = useState(false);
+
+  const downloadMonthlyReport = useDownloadMonthlyReport();
 
   const openActivityModal = (date: string) => {
     setSelectedDate(date);
-    fetchPreviousActivity(date); // Fetch previous activity for selected date
+    fetchAllActivities(); //Just fetch suggestions
     setShowModal(true);
   };
 
   const closeActivityModal = () => {
     setShowModal(false);
     setSelectedDate(null);
-    setPreviousActivity(null); // Reset previous activity when modal closes
   };
 
-  const fetchPreviousActivity = async (date: string) => {
+  const fetchAllActivities = async () => {
     if (!user) return;
 
     // Fetch all activities
@@ -54,23 +57,15 @@ const CalendarView: React.FC<{ children?: React.ReactNode }> = ({
     const querySnapshot = await getDocs(q);
     const activities = querySnapshot.docs.map((doc) => doc.data() as Activity);
 
-    const formattedActivities = activities.map((activity) => ({
+    const formattedActivities: Activity[] = activities.map((activity) => ({
+      ...activity,
       name: activity.name,
       color: activity.color,
       category: activity.category,
     }));
 
-    setAllActivities(formattedActivities); // Save all activities to show as suggestions
-
-    // Fetch the latest activity on the selected date
-    const activitiesOnDate = activities.filter(
-      (activity) => activity.activityDate === date
-    );
-    if (activitiesOnDate.length > 0) {
-      setPreviousActivity(activitiesOnDate[activitiesOnDate.length - 1]);
-    } else {
-      setPreviousActivity(null); // No activity found, reset previous activity
-    }
+    // Save all activities to show as suggestions
+    setAllActivities(formattedActivities);
   };
 
   const handleSaveActivity = async (
@@ -99,22 +94,73 @@ const CalendarView: React.FC<{ children?: React.ReactNode }> = ({
     }
   };
 
+  // Handle delete activity
+  const handleDeleteActivity = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, "activities", id));
+      setShowManageModal(false);
+      setActivityToEdit(null);
+    } catch (error) {
+      console.error("Error deleting activity: ", error);
+    }
+  };
+
+  // Handle save activity
+  const handleEditActivity = async (
+    activityName: string,
+    selectedCategory: string,
+    selectedColor: string
+  ) => {
+    if (activityToEdit?.id) {
+      const activityRef = doc(db, "activities", activityToEdit.id);
+      await updateDoc(activityRef, {
+        name: activityName,
+        category: selectedCategory,
+        color: selectedColor,
+      });
+      setShowManageModal(false);
+      setActivityToEdit(null);
+    }
+  };
+
   return (
     <div className="h-auto md:min-w-[700px] md:max-w-[1300px] md:rounded-lg mx-auto">
       {children}
       {isMobile ? (
-        <WeekView openActivityModal={openActivityModal} />
+        <WeekView
+          openActivityModal={openActivityModal}
+          setActivityToEdit={setActivityToEdit}
+          setShowManageModal={setShowManageModal}
+          onDownloadReport={downloadMonthlyReport}
+        />
       ) : (
-        <MonthView openActivityModal={openActivityModal} />
+        <MonthView
+          openActivityModal={openActivityModal}
+          setActivityToEdit={setActivityToEdit}
+          setShowManageModal={setShowManageModal}
+          onDownloadReport={downloadMonthlyReport}
+        />
       )}
-      <ActivityModal
-        isOpen={showModal}
-        onClose={closeActivityModal}
-        onSave={handleSaveActivity}
-        selectedDate={selectedDate}
-        previousActivity={previousActivity} // Pass the previous activity to the modal
-        activities={allActivities} // Pass all activities to the modal for suggestions
-      />
+      {showManageModal && activityToEdit && (
+        <ManageActivityModal
+          isOpen={showManageModal}
+          onClose={() => setShowManageModal(false)}
+          onDelete={() => {
+            if (activityToEdit?.id) handleDeleteActivity(activityToEdit.id);
+          }}
+          onSave={handleEditActivity}
+          selectedActivity={activityToEdit}
+        />
+      )}
+      {!activityToEdit && (
+        <ActivityModal
+          isOpen={showModal}
+          onClose={closeActivityModal}
+          onSave={handleSaveActivity}
+          selectedDate={selectedDate}
+          activities={allActivities}
+        />
+      )}
     </div>
   );
 };

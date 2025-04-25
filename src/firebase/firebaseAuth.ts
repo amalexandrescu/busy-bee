@@ -2,9 +2,11 @@ import {
   getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  signOut,
+  updateProfile,
 } from "firebase/auth";
 import app from "./firebaseConfig";
-import { doc, getFirestore, setDoc } from "firebase/firestore";
+import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
 
 // Initialize Firebase Authentication and get a reference to the service
 export const auth = getAuth(app);
@@ -20,6 +22,12 @@ export const signUp = async (name: string, email: string, password: string) => {
     );
     const user = userCredentials.user;
     console.log("User created:", user);
+
+    if (auth.currentUser) {
+      await updateProfile(auth.currentUser, {
+        displayName: name,
+      });
+    }
 
     // After creating the user, save additional user data in Firestore
     await setDoc(doc(db, "users", user.uid), {
@@ -56,4 +64,24 @@ export const signIn = async (email: string, password: string) => {
     }
     throw new Error("Invalid credentials.");
   }
+};
+
+export const logOut = async () => {
+  try {
+    await signOut(auth);
+    console.log("User signed out successfully");
+  } catch (error) {
+    console.error("Sign out error", error);
+  }
+};
+
+export const getUserProfile = async (uid: string) => {
+  const userDocRef = doc(db, "users", uid);
+  const userDoc = await getDoc(userDocRef);
+
+  if (userDoc.exists()) {
+    return userDoc.data(); // returns { name, email, createdAt }
+  }
+
+  return null;
 };

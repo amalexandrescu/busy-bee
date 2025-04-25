@@ -12,12 +12,21 @@ import {
 import { db } from "../../firebase/firebaseAuth";
 import { useAuth } from "../../context/AuthContext";
 import ActivityPill from "../activities/ActivityPill";
+import LogOut from "../auth/LogOut";
 
-interface IMonthViewProps {
+export interface ICalendarViewsProps {
   openActivityModal: (date: string) => void;
+  setActivityToEdit: React.Dispatch<React.SetStateAction<Activity | null>>;
+  setShowManageModal: React.Dispatch<React.SetStateAction<boolean>>;
+  onDownloadReport: (date: Date) => void;
 }
 
-const MonthView: React.FC<IMonthViewProps> = ({ openActivityModal }) => {
+const MonthView: React.FC<ICalendarViewsProps> = ({
+  openActivityModal,
+  setActivityToEdit,
+  setShowManageModal,
+  onDownloadReport,
+}) => {
   const [date, setDate] = useState(new Date());
   const [daysInMonth, setDaysInMonth] = useState<number[]>([]);
   const [startOffset, setStartOffset] = useState<number>(0);
@@ -94,8 +103,30 @@ const MonthView: React.FC<IMonthViewProps> = ({ openActivityModal }) => {
     return acc;
   }, {} as Record<string, Activity[]>);
 
+  const hasActivityForMonth = monthActivities.length > 0;
+
   return (
     <div className="p-4">
+      <div className="flex gap-4 items-center justify-between mb-4">
+        {/* Add the "Download Report" button */}
+        <div className="pl-1.5 text-center">
+          <button
+            disabled={!hasActivityForMonth}
+            onClick={() => onDownloadReport(date)}
+            className={`bg-blue-500 text-white p-2 rounded-lg ${
+              hasActivityForMonth
+                ? "hover:bg-blue-600"
+                : "bg-gray-300 cursor-not-allowed"
+            }`}
+          >
+            Download Activity Report
+          </button>
+        </div>
+        <div className="flex gap-4 font-bold items-center">
+          <span>{user?.displayName}</span>
+          <LogOut />
+        </div>
+      </div>
       <div className="flex items-center justify-between mb-4">
         <button onClick={goToPreviousMonth}>
           <ChevronLeft className="w-6 h-6" />
@@ -137,7 +168,15 @@ const MonthView: React.FC<IMonthViewProps> = ({ openActivityModal }) => {
                 <div className="w-full space-y-1 mt-1 overflow-y-auto">
                   {dayActivities.map((act, index) => (
                     <div key={index}>
-                      <ActivityPill name={act.name} color={act.color} />
+                      <ActivityPill
+                        name={act.name}
+                        color={act.color}
+                        onClick={(e) => {
+                          e.stopPropagation(); // Important to avoid triggering day click
+                          setActivityToEdit(act);
+                          setShowManageModal(true);
+                        }}
+                      />
                     </div>
                   ))}
                 </div>

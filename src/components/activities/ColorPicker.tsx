@@ -4,14 +4,18 @@ import { predefinedColors } from "../constants/colors";
 interface ColorPickerProps {
   selectedColor: string; // The currently selected color
   onColorSelect: (color: string) => void;
+  disabled?: boolean;
 }
 
 const ColorPicker: React.FC<ColorPickerProps> = ({
   selectedColor,
   onColorSelect,
+  disabled,
 }) => {
   const handleColorSelect = (colorCode: string) => {
-    onColorSelect(colorCode);
+    if (!disabled) {
+      onColorSelect(colorCode);
+    }
   };
 
   return (
@@ -23,12 +27,13 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
           <button
             key={color.code}
             onClick={() => handleColorSelect(color.code)}
+            disabled={disabled}
             style={{ backgroundColor: color.code }}
             className={`w-8 h-8 rounded-full border-2 transition-all ${
               selectedColor === color.code
                 ? "border-gray-300"
                 : "border-transparent"
-            }`}
+            } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
           ></button>
         ))}
       </div>
