@@ -24,7 +24,7 @@ export const getMonthRange = (
   const year = date.getFullYear();
   const month = date.getMonth();
   const start = new Date(year, month, 1);
-  const end = new Date(year, month + 1, 0);
+  const end = new Date(year, month + 1, 0, 23, 59, 59, 999);
   return {
     start: Timestamp.fromDate(start),
     end: Timestamp.fromDate(end),
