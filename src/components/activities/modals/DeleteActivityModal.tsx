@@ -1,14 +1,13 @@
-// components/DeleteConfirmationModal.tsx
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@mui/material";
-import { ActivityUserEntrance } from "../../../types/ActivityUserEntrance";
+import { Activity } from "../../../types/Activity";
 
 interface IDeleteActivityModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  selectedActivity: ActivityUserEntrance;
+  selectedActivity: Activity;
 }
 
 const DeleteActivityModal: React.FC<IDeleteActivityModalProps> = ({
@@ -29,7 +28,15 @@ const DeleteActivityModal: React.FC<IDeleteActivityModalProps> = ({
             className="bg-white rounded-lg p-6 w-80 shadow-lg"
           >
             <h2 className="text-lg font-semibold mb-4 text-center">
-              Are you sure you want to delete {selectedActivity.name} activity?
+              Are you sure you want to delete{" "}
+              <span style={{ color: selectedActivity.color }}>
+                {selectedActivity.name}
+              </span>{" "}
+              activity from{" "}
+              <span style={{ color: selectedActivity.color }}>
+                {selectedActivity.activityDate}
+              </span>
+              ?
             </h2>
             <div className="flex justify-between mt-6">
               <Button onClick={onClose} variant="contained">

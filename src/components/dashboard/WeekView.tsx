@@ -6,6 +6,7 @@ import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { db } from "../../firebase/firebaseAuth";
 import { useAuth } from "../../context/AuthContext";
 import ActivityPill from "../activities/ActivityPill";
+import { ICalendarViewsProps } from "./MonthView";
 
 interface CalendarMonth {
   id: string;
@@ -32,13 +33,7 @@ const generateMonthData = (baseDate: Date): CalendarMonth => {
   };
 };
 
-interface IWeekViewProps {
-  openActivityModal: (date: string) => void;
-  setActivityToEdit: React.Dispatch<React.SetStateAction<Activity | null>>;
-  setShowManageModal: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-const WeekView: React.FC<IWeekViewProps> = ({
+const WeekView: React.FC<ICalendarViewsProps> = ({
   openActivityModal,
   setActivityToEdit,
   setShowManageModal,

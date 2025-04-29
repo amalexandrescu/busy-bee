@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { ActivityUserEntrance } from "../../../types/ActivityUserEntrance";
 import DeleteActivityModal from "./DeleteActivityModal";
 import EditActivityModal from "./EditActivityModal";
+import { Activity } from "../../../types/Activity";
 
 interface IManageActivityModalProps {
   isOpen: boolean;
@@ -12,7 +12,7 @@ interface IManageActivityModalProps {
     selectedCategory: string,
     selectedColor: string
   ) => void;
-  selectedActivity: ActivityUserEntrance;
+  selectedActivity: Activity;
 }
 
 const ManageActivityModal: React.FC<IManageActivityModalProps> = ({

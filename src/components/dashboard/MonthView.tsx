@@ -13,13 +13,13 @@ import { db } from "../../firebase/firebaseAuth";
 import { useAuth } from "../../context/AuthContext";
 import ActivityPill from "../activities/ActivityPill";
 
-interface IMonthViewProps {
+export interface ICalendarViewsProps {
   openActivityModal: (date: string) => void;
   setActivityToEdit: React.Dispatch<React.SetStateAction<Activity | null>>;
   setShowManageModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const MonthView: React.FC<IMonthViewProps> = ({
+const MonthView: React.FC<ICalendarViewsProps> = ({
   openActivityModal,
   setActivityToEdit,
   setShowManageModal,

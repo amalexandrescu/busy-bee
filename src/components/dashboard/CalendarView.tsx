@@ -18,7 +18,6 @@ import ActivityModal from "../activities/modals/ActivityModal";
 import useIsMobile from "../../hooks/useIsMobile";
 import WeekView from "./WeekView";
 import { Activity } from "../../types/Activity";
-import { ActivityUserEntrance } from "../../types/ActivityUserEntrance";
 import ManageActivityModal from "../activities/modals/ManageActivityModal";
 
 const CalendarView: React.FC<{ children?: React.ReactNode }> = ({
@@ -29,9 +28,7 @@ const CalendarView: React.FC<{ children?: React.ReactNode }> = ({
   const [showModal, setShowModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   // Store all activities
-  const [allActivities, setAllActivities] = useState<ActivityUserEntrance[]>(
-    []
-  );
+  const [allActivities, setAllActivities] = useState<Activity[]>([]);
   const [activityToEdit, setActivityToEdit] = useState<Activity | null>(null);
   const [showManageModal, setShowManageModal] = useState(false);
 
@@ -57,13 +54,12 @@ const CalendarView: React.FC<{ children?: React.ReactNode }> = ({
     const querySnapshot = await getDocs(q);
     const activities = querySnapshot.docs.map((doc) => doc.data() as Activity);
 
-    const formattedActivities: ActivityUserEntrance[] = activities.map(
-      (activity) => ({
-        name: activity.name,
-        color: activity.color,
-        category: activity.category,
-      })
-    );
+    const formattedActivities: Activity[] = activities.map((activity) => ({
+      ...activity,
+      name: activity.name,
+      color: activity.color,
+      category: activity.category,
+    }));
 
     // Save all activities to show as suggestions
     setAllActivities(formattedActivities);
@@ -151,13 +147,15 @@ const CalendarView: React.FC<{ children?: React.ReactNode }> = ({
           selectedActivity={activityToEdit}
         />
       )}
-      <ActivityModal
-        isOpen={showModal}
-        onClose={closeActivityModal}
-        onSave={handleSaveActivity}
-        selectedDate={selectedDate}
-        activities={allActivities} // Pass all activities to the modal for suggestions
-      />
+      {!activityToEdit && (
+        <ActivityModal
+          isOpen={showModal}
+          onClose={closeActivityModal}
+          onSave={handleSaveActivity}
+          selectedDate={selectedDate}
+          activities={allActivities}
+        />
+      )}
     </div>
   );
 };
