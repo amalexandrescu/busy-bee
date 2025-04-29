@@ -34,9 +34,15 @@ const generateMonthData = (baseDate: Date): CalendarMonth => {
 
 interface IWeekViewProps {
   openActivityModal: (date: string) => void;
+  setActivityToEdit: React.Dispatch<React.SetStateAction<Activity | null>>;
+  setShowManageModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const WeekView: React.FC<IWeekViewProps> = ({ openActivityModal }) => {
+const WeekView: React.FC<IWeekViewProps> = ({
+  openActivityModal,
+  setActivityToEdit,
+  setShowManageModal,
+}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [calendarMonths, setCalendarMonths] = useState<CalendarMonth[]>([]);
   const [visibleMonth, setVisibleMonth] = useState<Date | null>(null);
@@ -287,9 +293,17 @@ const WeekView: React.FC<IWeekViewProps> = ({ openActivityModal }) => {
                   >
                     <div className="font-medium">{day}</div>
                     <div className="mt-1 space-y-1 w-full">
-                      {dayActivities.map((act, index) => (
+                      {dayActivities.map((activity, index) => (
                         <div key={index}>
-                          <ActivityPill name={act.name} color={act.color} />
+                          <ActivityPill
+                            name={activity.name}
+                            color={activity.color}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActivityToEdit(activity);
+                              setShowManageModal(true);
+                            }}
+                          />
                         </div>
                       ))}
                     </div>
@@ -305,7 +319,6 @@ const WeekView: React.FC<IWeekViewProps> = ({ openActivityModal }) => {
           </div>
         );
       })}
-
       <div id="bottom-sentinel" className="w-full h-1" />
     </div>
   );

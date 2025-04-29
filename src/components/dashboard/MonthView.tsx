@@ -15,9 +15,15 @@ import ActivityPill from "../activities/ActivityPill";
 
 interface IMonthViewProps {
   openActivityModal: (date: string) => void;
+  setActivityToEdit: React.Dispatch<React.SetStateAction<Activity | null>>;
+  setShowManageModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const MonthView: React.FC<IMonthViewProps> = ({ openActivityModal }) => {
+const MonthView: React.FC<IMonthViewProps> = ({
+  openActivityModal,
+  setActivityToEdit,
+  setShowManageModal,
+}) => {
   const [date, setDate] = useState(new Date());
   const [daysInMonth, setDaysInMonth] = useState<number[]>([]);
   const [startOffset, setStartOffset] = useState<number>(0);
@@ -108,6 +114,16 @@ const MonthView: React.FC<IMonthViewProps> = ({ openActivityModal }) => {
         </button>
       </div>
 
+      {/* Add the "Download Report" button */}
+      <div className="text-center mb-4">
+        <button
+          // onClick={handleDownloadReport}
+          className="bg-blue-500 text-white p-2 rounded-lg"
+        >
+          Download Activity Report
+        </button>
+      </div>
+
       {loading ? (
         <div className="text-center text-gray-500 py-10">Loading...</div>
       ) : (
@@ -137,7 +153,15 @@ const MonthView: React.FC<IMonthViewProps> = ({ openActivityModal }) => {
                 <div className="w-full space-y-1 mt-1 overflow-y-auto">
                   {dayActivities.map((act, index) => (
                     <div key={index}>
-                      <ActivityPill name={act.name} color={act.color} />
+                      <ActivityPill
+                        name={act.name}
+                        color={act.color}
+                        onClick={(e) => {
+                          e.stopPropagation(); // Important to avoid triggering day click
+                          setActivityToEdit(act);
+                          setShowManageModal(true);
+                        }}
+                      />
                     </div>
                   ))}
                 </div>
