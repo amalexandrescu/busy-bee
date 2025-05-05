@@ -7,6 +7,9 @@ import { db } from "../../firebase/firebaseAuth";
 import { useAuth } from "../../context/AuthContext";
 import ActivityPill from "../activities/ActivityPill";
 import { ICalendarViewsProps } from "./MonthView";
+import { Download } from "lucide-react";
+import { Divider } from "@mui/material";
+import LogOut from "../auth/LogOut";
 
 interface CalendarMonth {
   id: string;
@@ -37,6 +40,7 @@ const WeekView: React.FC<ICalendarViewsProps> = ({
   openActivityModal,
   setActivityToEdit,
   setShowManageModal,
+  onDownloadReport,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [calendarMonths, setCalendarMonths] = useState<CalendarMonth[]>([]);
@@ -45,6 +49,14 @@ const WeekView: React.FC<ICalendarViewsProps> = ({
   const activityCache = useRef<Map<string, Activity[]>>(new Map());
   const listeners = useRef<Map<string, () => void>>(new Map());
   const [loadingMonths, setLoadingMonths] = useState<Set<string>>(new Set());
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const currentMonthKey =
+    visibleMonth && `${visibleMonth.getFullYear()}-${visibleMonth.getMonth()}`;
+
+  const hasActivityForMonth =
+    currentMonthKey && activityCache.current.has(currentMonthKey)
+      ? (activityCache.current.get(currentMonthKey) || []).length > 0
+      : false;
 
   const { user } = useAuth();
 
@@ -229,11 +241,40 @@ const WeekView: React.FC<ICalendarViewsProps> = ({
   return (
     <div ref={containerRef} className="relative h-screen overflow-y-auto">
       <div className="sticky top-0 z-10 bg-white text-xl font-bold border-b border-gray-400">
-        <div className="pl-5 py-2">
-          {visibleMonth?.toLocaleString("default", {
-            month: "long",
-            year: "numeric",
-          }) ?? ""}
+        <div className="flex gap-4 items-center justify-end pt-2 px-5">
+          <span>{user?.displayName}</span>
+          <LogOut />
+        </div>
+        <div className="flex gap-2 items-center justify-between py-2 px-5">
+          <div>
+            {visibleMonth?.toLocaleString("default", {
+              month: "long",
+              year: "numeric",
+            }) ?? ""}
+          </div>
+
+          <button
+            onClick={() => {
+              if (visibleMonth) {
+                const firstOfMonth = new Date(
+                  visibleMonth.getFullYear(),
+                  visibleMonth.getMonth(),
+                  1
+                );
+                onDownloadReport(firstOfMonth);
+              }
+            }}
+            disabled={!hasActivityForMonth}
+            className={`flex items-center justify-center gap-2 p-2 rounded-lg 
+    ${
+      hasActivityForMonth
+        ? "bg-blue-500 text-white"
+        : "bg-gray-300 text-gray-500 cursor-not-allowed"
+    }`}
+          >
+            <Download className="h-5 w-5" />
+            <span className="text-[16px]">Activity Report</span>
+          </button>
         </div>
         <div className="grid grid-cols-7 gap-1 text-center text-xs pb-1">
           {["M", "T", "W", "T", "F", "S", "S"].map((day, index) => (
@@ -255,13 +296,13 @@ const WeekView: React.FC<ICalendarViewsProps> = ({
 
         return (
           <div key={month.id} data-month data-id={month.id} className="mb-4">
-            <div className="grid grid-cols-7 gap-1">
+            <div className="grid grid-cols-7">
               <div
                 style={{
                   gridColumnStart: month.startOffset + 1,
                   gridColumnEnd: month.startOffset + 2,
                 }}
-                className="text-sm font-semibold mb-1"
+                className="text-sm font-semibold mb-2 text-center"
               >
                 {month.date.toLocaleString("default", { month: "short" })}
               </div>
@@ -283,13 +324,20 @@ const WeekView: React.FC<ICalendarViewsProps> = ({
                 return (
                   <div
                     key={`${month.id}-day-${day}`}
-                    onClick={() => openActivityModal(fullDate)}
-                    className="cursor-pointer h-[13rem] w-full border rounded-lg flex flex-col items-start justify-start bg-gray-100 hover:bg-gray-200 p-1 overflow-hidden"
+                    onClick={() => {
+                      setSelectedDate(fullDate);
+                      openActivityModal(fullDate);
+                    }}
+                    className="cursor-pointer h-[13rem] w-full flex flex-col items-center justify-start bg-gray-100 hover:bg-gray-200 overflow-hidden"
                   >
+                    <div className="w-full mb-2">
+                      <Divider />
+                    </div>
+
                     <div className="font-medium">{day}</div>
                     <div className="mt-1 space-y-1 w-full">
                       {dayActivities.map((activity, index) => (
-                        <div key={index}>
+                        <div key={index} className="mx-[1.5px]">
                           <ActivityPill
                             name={activity.name}
                             color={activity.color}

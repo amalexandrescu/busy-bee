@@ -12,17 +12,20 @@ import {
 import { db } from "../../firebase/firebaseAuth";
 import { useAuth } from "../../context/AuthContext";
 import ActivityPill from "../activities/ActivityPill";
+import LogOut from "../auth/LogOut";
 
 export interface ICalendarViewsProps {
   openActivityModal: (date: string) => void;
   setActivityToEdit: React.Dispatch<React.SetStateAction<Activity | null>>;
   setShowManageModal: React.Dispatch<React.SetStateAction<boolean>>;
+  onDownloadReport: (date: Date) => void;
 }
 
 const MonthView: React.FC<ICalendarViewsProps> = ({
   openActivityModal,
   setActivityToEdit,
   setShowManageModal,
+  onDownloadReport,
 }) => {
   const [date, setDate] = useState(new Date());
   const [daysInMonth, setDaysInMonth] = useState<number[]>([]);
@@ -100,8 +103,30 @@ const MonthView: React.FC<ICalendarViewsProps> = ({
     return acc;
   }, {} as Record<string, Activity[]>);
 
+  const hasActivityForMonth = monthActivities.length > 0;
+
   return (
     <div className="p-4">
+      <div className="flex gap-4 items-center justify-between mb-4">
+        {/* Add the "Download Report" button */}
+        <div className="pl-1.5 text-center">
+          <button
+            disabled={!hasActivityForMonth}
+            onClick={() => onDownloadReport(date)}
+            className={`bg-blue-500 text-white p-2 rounded-lg ${
+              hasActivityForMonth
+                ? "hover:bg-blue-600"
+                : "bg-gray-300 cursor-not-allowed"
+            }`}
+          >
+            Download Activity Report
+          </button>
+        </div>
+        <div className="flex gap-4 font-bold items-center">
+          <span>{user?.displayName}</span>
+          <LogOut />
+        </div>
+      </div>
       <div className="flex items-center justify-between mb-4">
         <button onClick={goToPreviousMonth}>
           <ChevronLeft className="w-6 h-6" />
@@ -111,16 +136,6 @@ const MonthView: React.FC<ICalendarViewsProps> = ({
         </h2>
         <button onClick={goToNextMonth}>
           <ChevronRight className="w-6 h-6" />
-        </button>
-      </div>
-
-      {/* Add the "Download Report" button */}
-      <div className="text-center mb-4">
-        <button
-          // onClick={handleDownloadReport}
-          className="bg-blue-500 text-white p-2 rounded-lg"
-        >
-          Download Activity Report
         </button>
       </div>
 

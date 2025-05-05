@@ -19,6 +19,7 @@ import useIsMobile from "../../hooks/useIsMobile";
 import WeekView from "./WeekView";
 import { Activity } from "../../types/Activity";
 import ManageActivityModal from "../activities/modals/ManageActivityModal";
+import { useDownloadMonthlyReport } from "../../utils/activityreports";
 
 const CalendarView: React.FC<{ children?: React.ReactNode }> = ({
   children,
@@ -31,6 +32,8 @@ const CalendarView: React.FC<{ children?: React.ReactNode }> = ({
   const [allActivities, setAllActivities] = useState<Activity[]>([]);
   const [activityToEdit, setActivityToEdit] = useState<Activity | null>(null);
   const [showManageModal, setShowManageModal] = useState(false);
+
+  const downloadMonthlyReport = useDownloadMonthlyReport();
 
   const openActivityModal = (date: string) => {
     setSelectedDate(date);
@@ -128,12 +131,14 @@ const CalendarView: React.FC<{ children?: React.ReactNode }> = ({
           openActivityModal={openActivityModal}
           setActivityToEdit={setActivityToEdit}
           setShowManageModal={setShowManageModal}
+          onDownloadReport={downloadMonthlyReport}
         />
       ) : (
         <MonthView
           openActivityModal={openActivityModal}
           setActivityToEdit={setActivityToEdit}
           setShowManageModal={setShowManageModal}
+          onDownloadReport={downloadMonthlyReport}
         />
       )}
       {showManageModal && activityToEdit && (
