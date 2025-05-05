@@ -10,6 +10,7 @@ import { auth } from "../firebase/firebaseAuth";
 
 interface AuthContextType {
   user: User | null;
+  loading: boolean;
 }
 interface IAuthProviderProps {
   children: ReactNode; // ReactNode allows any valid JSX element as children
@@ -19,11 +20,13 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<IAuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   console.log("user: ", user);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
+      setLoading(false);
     });
 
     // Cleanup the listener on unmount
@@ -31,7 +34,9 @@ export const AuthProvider: React.FC<IAuthProviderProps> = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, loading }}>
+      {children}
+    </AuthContext.Provider>
   );
 };
 
