@@ -26,6 +26,25 @@ function RegisterForm(): React.JSX.Element {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault(); // Prevent default form submission behavior
 
+    // Basic validation
+    if (!name.trim()) {
+      setError("Name is required.");
+      setSuccess("");
+      return;
+    }
+
+    if (!email.trim()) {
+      setError("Email is required.");
+      setSuccess("");
+      return;
+    }
+
+    if (!password.trim()) {
+      setError("Password is required.");
+      setSuccess("");
+      return;
+    }
+
     try {
       await signUp(name, email, password);
       setError(""); // Clear any previous errors
@@ -57,6 +76,7 @@ function RegisterForm(): React.JSX.Element {
                   <InputLabel>Name</InputLabel>
                   <OutlinedInput
                     name="name"
+                    required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                   />

@@ -14,14 +14,19 @@ import Stack from "@mui/material/Stack";
 import { Typography } from "@mui/material";
 import { signIn } from "../../../firebase/firebaseAuth";
 import { useNavigate } from "react-router-dom";
-import { deleteUser, getAuth } from "firebase/auth";
+// import {
+//   deleteUser,
+//   EmailAuthProvider,
+//   getAuth,
+//   reauthenticateWithCredential,
+// } from "firebase/auth";
 
 function LogInForm(): React.JSX.Element {
   const [email, setEmail] = React.useState<string>("");
   const [password, setPassword] = React.useState<string>("");
   const [error, setError] = React.useState<string>("");
   const [success, setSuccess] = React.useState<string>("");
-  const [isUserDeleted, setIsUserDeleted] = React.useState<boolean>(false); // Track if user is deleted
+  // const [isUserDeleted, setIsUserDeleted] = React.useState<boolean>(false); // Track if user is deleted
 
   const navigate = useNavigate();
 
@@ -37,27 +42,31 @@ function LogInForm(): React.JSX.Element {
     }
   };
 
-  const handleDeleteAccount = async () => {
-    const auth = getAuth();
-    const user = auth.currentUser;
+  //disabled until I need delete user
+  // const handleDeleteAccount = async (email: string, password: string) => {
+  //   const auth = getAuth();
+  //   const user = auth.currentUser;
 
-    if (user) {
-      try {
-        await deleteUser(user); // This deletes the current user from Firebase Authentication
-        setIsUserDeleted(true); // Set state to indicate user is deleted
-        setSuccess("Your account has been deleted.");
-        console.log("User deleted from Firebase Authentication");
+  //   if (!user) return;
 
-        // Optionally, redirect user after deletion
-        setTimeout(() => {
-          navigate("/login"); // Redirect to login page after deletion
-        }, 2000);
-      } catch (error: any) {
-        console.error("Error deleting user: ", error);
-        setError("Failed to delete account.");
-      }
-    }
-  };
+  //   try {
+  //     // Required: re-authenticate
+  //     const credential = EmailAuthProvider.credential(email, password);
+  //     await reauthenticateWithCredential(user, credential);
+  //     await deleteUser(user); // This deletes the current user from Firebase Authentication
+  //     setIsUserDeleted(true); // Set state to indicate user is deleted
+  //     setSuccess("Your account has been deleted.");
+  //     console.log("User deleted from Firebase Authentication");
+
+  //     // Optionally, redirect user after deletion
+  //     setTimeout(() => {
+  //       navigate("/login"); // Redirect to login page after deletion
+  //     }, 2000);
+  //   } catch (error: any) {
+  //     console.error("Error deleting user: ", error);
+  //     setError("Failed to delete account.");
+  //   }
+  // };
 
   return (
     <Box sx={{ p: 3 }}>
@@ -95,15 +104,16 @@ function LogInForm(): React.JSX.Element {
                 <Button variant="contained" onClick={handleSubmit}>
                   Log in
                 </Button>
-                {!isUserDeleted && (
+                {/* disabled for now because I don't need the delete button */}
+                {/* {!isUserDeleted && (
                   <Button
                     variant="contained"
                     color="error"
-                    onClick={handleDeleteAccount}
+                    onClick={() => handleDeleteAccount(email, password)}
                   >
                     Delete Account
                   </Button>
-                )}
+                )} */}
                 {error && <Typography color="error">{error}</Typography>}
                 {success && <Typography color="primary">{success}</Typography>}
               </Stack>
