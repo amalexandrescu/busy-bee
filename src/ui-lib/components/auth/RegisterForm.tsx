@@ -60,51 +60,117 @@ function RegisterForm(): React.JSX.Element {
   return (
     <Box sx={{ p: 3 }}>
       <Container maxWidth="sm">
-        <Card>
+        <Card
+          sx={{
+            borderRadius: 4,
+            boxShadow: 3,
+            px: 2,
+            py: 4,
+          }}
+        >
           <CardHeader
             title="Register"
             subheader={
-              <Typography variant="subtitle2" component="div">
-                Already have an account? <Link href="/login">Log in</Link>
+              <Typography variant="body2" component="div">
+                Already have an account?{" "}
+                <Link
+                  href="/login"
+                  underline="hover"
+                  sx={{ color: "#4e36f5", fontWeight: 500 }}
+                >
+                  Log in
+                </Link>
               </Typography>
             }
           />
-          <CardContent>
-            <Stack divider={<Divider />} spacing={3}>
-              <Stack spacing={2}>
-                <FormControl fullWidth>
-                  <InputLabel>Name</InputLabel>
-                  <OutlinedInput
-                    name="name"
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                  />
-                </FormControl>
-                <FormControl fullWidth>
-                  <InputLabel>Email address</InputLabel>
-                  <OutlinedInput
-                    name="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </FormControl>
-                <FormControl fullWidth>
-                  <InputLabel>Password</InputLabel>
-                  <OutlinedInput
-                    name="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </FormControl>
-                <Button variant="contained" onClick={handleSubmit}>
-                  Create account
-                </Button>
-                {error && <Typography color="error">{error}</Typography>}
-                {success && <Typography color="primary">{success}</Typography>}
-              </Stack>
+          <CardContent sx={{ pt: 0 }}>
+            <Stack spacing={2}>
+              <FormControl fullWidth size="small">
+                <InputLabel
+                  htmlFor="name"
+                  sx={{
+                    "&.Mui-focused": {
+                      color: "#6a5af9",
+                    },
+                  }}
+                >
+                  Name
+                </InputLabel>
+                <OutlinedInput
+                  id="name"
+                  name="name"
+                  required
+                  value={name}
+                  label="Name"
+                  onChange={(e) => setName(e.target.value)}
+                  sx={{
+                    height: 40,
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#6a5af9",
+                    },
+                  }}
+                />
+              </FormControl>
+              <FormControl fullWidth size="small">
+                <InputLabel
+                  htmlFor="email"
+                  sx={{
+                    "&.Mui-focused": {
+                      color: "#6a5af9",
+                    },
+                  }}
+                >
+                  Email address
+                </InputLabel>
+                <OutlinedInput
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  label="Email address"
+                  sx={{
+                    height: 40,
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#6a5af9",
+                    },
+                  }}
+                />
+              </FormControl>
+              <FormControl fullWidth size="small">
+                <InputLabel
+                  htmlFor="password"
+                  sx={{
+                    "&.Mui-focused": {
+                      color: "#6a5af9",
+                    },
+                  }}
+                >
+                  Password
+                </InputLabel>
+                <OutlinedInput
+                  id="password"
+                  name="password"
+                  type="password"
+                  value={password}
+                  label="Password"
+                  onChange={(e) => setPassword(e.target.value)}
+                  sx={{
+                    height: 40,
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#6a5af9",
+                    },
+                  }}
+                />
+              </FormControl>
+              <Button
+                onClick={handleSubmit}
+                variant="contained"
+                sx={{ bgcolor: "#4e36f5" }}
+              >
+                Create account
+              </Button>
+              {error && <Typography color="error">{error}</Typography>}
+              {success && <Typography color="primary">{success}</Typography>}
             </Stack>
           </CardContent>
         </Card>
