@@ -21,7 +21,6 @@ export const signUp = async (name: string, email: string, password: string) => {
       password
     );
     const user = userCredentials.user;
-    console.log("User created:", user);
 
     if (auth.currentUser) {
       await updateProfile(auth.currentUser, {
@@ -50,8 +49,7 @@ export const signIn = async (email: string, password: string) => {
       password
     );
     const user = userCredentials.user;
-    console.log("User logged in:", user);
-    console.log("User is still in Firebase Authentication:", user);
+
     return user;
   } catch (error: unknown) {
     console.error("Error signing in:", error);
