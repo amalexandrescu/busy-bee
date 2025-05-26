@@ -4,4 +4,6 @@ export const predefinedColors = [
   { code: "#F472B6", name: "Pink" },
   { code: "#FBBF24", name: "Yellow" },
   { code: "#EF4444", name: "Red" },
+  { code: "#C084FC", name: "Violet" },
+  { code: "#84CC16", name: "Lime" },
 ]; // Predefined colors
